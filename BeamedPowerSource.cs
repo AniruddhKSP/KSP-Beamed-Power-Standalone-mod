@@ -53,6 +53,8 @@ namespace BeamedPowerStandalone
 
         List<ConfigNode> receiversList; int frames; int initFrames;
         VesselFinder vesselFinder = new VesselFinder(); ModuleCoreHeat coreHeat;
+        Wavelengths waves = new Wavelengths();
+
         string operational = Localizer.Format("#LOC_BeamedPower_status_Operational");
         string ExceedTempLimit = Localizer.Format("#LOC_BeamedPower_status_ExceededTempLimit");
         string VesselNone = Localizer.Format("#LOC_BeamedPower_Vessel_None");
@@ -143,9 +145,7 @@ namespace BeamedPowerStandalone
         }
         public override string GetInfo()
         {
-            string Long = Localizer.Format("#LOC_BeamedPower_Wavelength_long");
-            string Short = Localizer.Format("#LOC_BeamedPower_Wavelength_short");
-            string wavelengthLocalized = (Wavelength == "Long") ? Long : Short;
+            waves.Wavelength(Wavelength, out _ , out _, out string wavelengthLocalized);
 
             return Localizer.Format("#LOC_BeamedPower_WirelessSource_ModuleInfo",
                 DishDiameter.ToString(),
@@ -239,20 +239,9 @@ namespace BeamedPowerStandalone
                     }
 
                     // a bunch of math
+                    double wavelengthNum = waves.WavelengthNum(this.part, Wavelength);
+                    Constant = Convert.ToSingle((1.44 * wavelengthNum) / DishDiameter);
                     Excess = Convert.ToSingle(Math.Round((PowerBeamed * Efficiency), 1));
-                    if (Wavelength == "Short")      // short ultraviolet
-                    {
-                        Constant = Convert.ToSingle((1.44 * 5 * Math.Pow(10, -8)) / DishDiameter);
-                    }
-                    else if (Wavelength == "Long")  // short microwave
-                    {
-                        Constant = Convert.ToSingle((1.44 * Math.Pow(10, -3)) / DishDiameter);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("BeamedPowerStandalone.WirelessSource : Incorrect wavelength set in .cfg file of part- " + this.part.partName);
-                        Constant = 1f;
-                    }
 
                     if (HighLogic.CurrentGame.Parameters.CustomParams<BPSettings>().BackgroundProcessing == false)
                     {
@@ -287,8 +276,7 @@ namespace BeamedPowerStandalone
         {
             if (HighLogic.LoadedSceneIsEditor)
             {
-                float wavelength_num = (float)((Wavelength == "Long") ? Math.Pow(10, -3) : 5 * Math.Pow(10, -8));
-                float spot_size = (float)(1.44 * wavelength_num * Distance * 1000000d / DishDiameter);
+                float spot_size = (float)(1.44 * waves.WavelengthNum(this.part, Wavelength) * Distance * 1000000d / DishDiameter);
                 PowerReceived = (spot_size > RecvDiameter) ?
                     RecvDiameter / spot_size * BeamedPower * Efficiency * (RecvEfficiency / 100) : BeamedPower * Efficiency * (RecvEfficiency / 100);
                 PowerReceived = (float)Math.Round(PowerReceived, 1);

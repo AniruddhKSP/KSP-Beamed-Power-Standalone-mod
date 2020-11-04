@@ -80,7 +80,7 @@ namespace BeamedPowerStandalone
         public string TransmittingTo = Localizer.Format("#LOC_BeamedPower_Vessel_None");
 
         // declaring frequently used variables
-        VesselFinder vesselFinder = new VesselFinder();
+        VesselFinder vesselFinder = new VesselFinder(); Wavelengths wave = new Wavelengths();
         readonly int EChash = PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id; int initFrames;
         ModuleCoreHeat coreHeat; ReceivedPower receiver = new ReceivedPower(); double heatModifier;
 
@@ -218,9 +218,7 @@ namespace BeamedPowerStandalone
         }
         public override string GetInfo()
         {
-            string Long = Localizer.Format("#LOC_BeamedPower_Wavelength_long");
-            string Short = Localizer.Format("#LOC_BeamedPower_Wavelength_short");
-            string wavelengthLocalized = (wavelength == "Long") ? Long : Short;
+            wave.Wavelength(wavelength, out _, out _, out string wavelengthLocalized);
 
             return Localizer.Format("#LOC_BeamedPower_WirelessReflector_ModuleInfo",
                 ReflectorDiameter.ToString(),
@@ -261,7 +259,8 @@ namespace BeamedPowerStandalone
                 }
                 catch
                 {
-                    Wavelength = "Long";
+                    Wavelength = "Ultraviolet";
+                    Debug.LogWarning("BeamedPowerStandalone.WirelessReflector : Wavelength set to default.");
                 }
                 
                 Excess = (float)Math.Round(recvPower, 1);
@@ -283,8 +282,8 @@ namespace BeamedPowerStandalone
                 }
                 PowerReflected = (float)Math.Round(Excess, 1);
 
-                Constant = (float)((Wavelength == "Long") ? 1.44 * Math.Pow(10, -3) / ReflectorDiameter : 
-                    1.44 * 5 * Math.Pow(10, -8) / ReflectorDiameter);
+                double wavelengthnum = wave.WavelengthNum(this.part, wavelength);
+                Constant = (float)(1.44 * wavelengthnum / ReflectorDiameter);
                 vesselFinder.ReceiverData(out receiverConfigList);
                 TransmittingTo = receiverConfigList[receiverCounter].GetValue("name");
             }

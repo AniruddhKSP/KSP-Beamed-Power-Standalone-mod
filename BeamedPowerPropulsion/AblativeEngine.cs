@@ -48,7 +48,7 @@ namespace BeamedPowerPropulsion
             counter += 1;
         }
 
-        ModuleEnginesFX engine; ReceivedPower receiver; float percentThrust;
+        ModuleEnginesFX engine; ReceivedPower receiver; Wavelengths waves = new Wavelengths(); float percentThrust;
         readonly int EChash = PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id;
         string operational = Localizer.Format("#LOC_BeamedPower_status_Operational");
         string engineOff = Localizer.Format("#LOC_BeamedPower_ThermalEngine_EngineOff");
@@ -205,14 +205,18 @@ namespace BeamedPowerPropulsion
         public float Thrust;
 
         [KSPField(guiName = "Beamed Wavelength", groupName = "calculator4", guiActiveEditor = true, guiActive = false)]
-        public string CalcWavelength = Localizer.Format("#LOC_BeamedPower_Wavelength_long");
+        public string CalcWavelength = Localizer.Format("#LOC__BeamedPower_Wavelength_gamma");
+
+        double wavelength_num = 5E-11d; int wavelengthIndex = 0;
 
         [KSPEvent(guiName = "Toggle Wavelength", guiActive = false, guiActiveEditor = true, groupName = "calculator4")]
         public void ToggleWavelength()
         {
-            CalcWavelength = (CalcWavelength == Long) ? Short : Long;
+            wavelengthIndex = (wavelengthIndex < 5) ? wavelengthIndex + 1 : 0;
+            string[] all_wavelengths = new string[] { "GammaRays", "XRays", "Ultraviolet", "Infrared", "Microwaves", "Radiowaves" };
+            waves.Wavelength(all_wavelengths[wavelengthIndex], out _, out _, out CalcWavelength);
+            wavelength_num = waves.WavelengthNum(this.part, all_wavelengths[wavelengthIndex]);
         }
-        string Long = Localizer.Format("#LOC_BeamedPower_Wavelength_long"); string Short = Localizer.Format("#LOC_BeamedPower_Wavelength_short");
 
         // only runs in editor (code for thrust calculator)
         public void Update()
@@ -220,7 +224,6 @@ namespace BeamedPowerPropulsion
             if (HighLogic.LoadedSceneIsEditor)
             {
                 engine.thrustPercentage = 100f;
-                float wavelength_num = (float)((CalcWavelength == Long) ? Math.Pow(10, -3) : 5 * Math.Pow(10, -8));
                 float spotArea = (float)Math.Pow((1.44 * wavelength_num * Distance * 1000000 / SourceDishDia)/2, 2) * 3.14f;
                 double powerReceived = (spotArea > SurfaceArea) ?
                     (SurfaceArea / spotArea) * BeamedPower * (CalcEfficiency / 100) * Efficiency : BeamedPower * (CalcEfficiency / 100) * Efficiency;

@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BeamedPowerPropulsion</RootNamespace>
-    <AssemblyName>BeamedPowerPropulsion</AssemblyName>
+    <AssemblyName>BeamedPowerPropulsionRW</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\BeamedPowerStandalone\Plugins\</OutputPath>
+    <OutputPath>..\..\..\BeamedPowerStandalone\Extra\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -37,9 +37,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="BeamedPowerStandalone, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="BeamedPowerStandaloneRW, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\BeamedPowerStandalone\Plugins\BeamedPowerStandalone.dll</HintPath>
+      <HintPath>..\..\..\BeamedPowerStandalone\Extra\BeamedPowerStandaloneRW.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

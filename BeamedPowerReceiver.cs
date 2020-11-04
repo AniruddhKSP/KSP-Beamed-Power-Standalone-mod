@@ -247,20 +247,25 @@ namespace BeamedPowerStandalone
         public float PowerReceived;
 
         [KSPField(guiName = "Beamed Wavelength", groupName = "calculator1", guiActiveEditor = true, guiActive = false, isPersistant = false)]
-        public string CalcWavelength = Localizer.Format("#LOC_BeamedPower_Wavelength_long");
+        public string CalcWavelength = Localizer.Format("#LOC__BeamedPower_Wavelength_gamma");
+
+        double wavelength_num = 5E-11d; int wavelengthIndex = 0;
 
         [KSPEvent(guiName = "Toggle Wavelength", guiActive = false, guiActiveEditor = true, groupName = "calculator1", isPersistent = false)]
         public void ToggleWavelength()
         {
-            CalcWavelength = (CalcWavelength == Long) ? Short : Long;
+            wavelengthIndex = (wavelengthIndex < 5)? wavelengthIndex + 1 : 0;
+            string[] all_wavelengths = new string[] { "GammaRays", "XRays", "Ultraviolet", "Infrared", "Microwaves", "Radiowaves"};
+            waves.Wavelength(all_wavelengths[wavelengthIndex], out _, out _, out CalcWavelength);
+            wavelength_num = waves.WavelengthNum(this.part, all_wavelengths[wavelengthIndex]);
         }
-        string Long = Localizer.Format("#LOC_BeamedPower_Wavelength_long"); string Short = Localizer.Format("#LOC_BeamedPower_Wavelength_short");
+
+        Wavelengths waves = new Wavelengths();
 
         public void Update()
         {
             if (HighLogic.LoadedSceneIsEditor)
             {
-                float wavelength_num = (float)((CalcWavelength == Long) ? Math.Pow(10, -3) : 5 * Math.Pow(10, -8));
                 float spot_size = (float)(1.44 * wavelength_num * Distance * 1000000d / SourceDishDia);
                 PowerReceived = (spot_size > recvDiameter) ?
                     recvDiameter / spot_size * BeamedPower * (CalcEfficiency / 100) * recvEfficiency : 

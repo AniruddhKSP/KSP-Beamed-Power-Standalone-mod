@@ -6,6 +6,85 @@ using CommNet.Occluders;
 
 namespace BeamedPowerStandalone
 {
+    public class Wavelengths
+    {
+        string gamma = Localizer.Format("#LOC_BeamedPower_Wavelength_gamma");
+        string x_rays = Localizer.Format("#LOC_BeamedPower_Wavelength_xrays");
+        string uv = Localizer.Format("#LOC_BeamedPower_Wavelength_uv");
+        string infrared = Localizer.Format("#LOC_BeamedPower_Wavelength_infrared");
+        string microwave = Localizer.Format("#LOC_BeamedPower_Wavelength_microwave");
+        string radiowave = Localizer.Format("#LOC_BeamedPower_Wavelength_radiowave");
+        string unknown = Localizer.Format("#LOC_BeamedPower_Wavelength_unknown");
+
+        public void Wavelength(string wavelength, out string[] wavelengthsLOC, out string[] wavelengths, out string outWavelength)
+        {
+            wavelengthsLOC = new[] { gamma, x_rays, uv, infrared, microwave, radiowave };
+            wavelengths = new[] { "GammaRays", "XRays", "Ultraviolet", "Infrared", "Microwaves", "Radiowaves" };
+
+            if (wavelength == "GammaRays")
+            {
+                outWavelength = gamma;
+            }
+            else if (wavelength == "XRays")
+            {
+                outWavelength = x_rays;
+            }
+            else if (wavelength == "Ultraviolet")
+            {
+                outWavelength = uv;
+            }
+            else if (wavelength == "Infrared")
+            {
+                outWavelength = infrared;
+            }
+            else if (wavelength == "Microwaves")
+            {
+                outWavelength = microwave;
+            }
+            else if (wavelength == "Radiowaves")
+            {
+                outWavelength = radiowave;
+            }
+            else
+            {
+                outWavelength = unknown;
+            }
+        }
+        public double WavelengthNum(Part thisPart, string Wavelength)
+        {
+            double wavelengthnum;
+            if (Wavelength == "GammaRays")
+            {
+                wavelengthnum = 5E-11d;
+            }
+            else if (Wavelength == "XRays")
+            {
+                wavelengthnum = 1E-9d;
+            }
+            else if (Wavelength == "Ultraviolet")
+            {
+                wavelengthnum = 5E-8d;
+            }
+            else if (Wavelength == "Infrared")
+            {
+                wavelengthnum = 1E-4d;
+            }
+            else if (Wavelength == "Microwaves")
+            {
+                wavelengthnum = 1E-2d;
+            }
+            else if (Wavelength == "Radiowaves")
+            {
+                wavelengthnum = 1d;
+            }
+            else
+            {
+                wavelengthnum = 8E-4d;       // defaults to infrared if invalid wavelength is set in .cfg
+                Debug.LogWarning("BeamedPowerStandalone : Incorrect Wavelength set in .cfg file of part- " + thisPart.partName);
+            }
+            return wavelengthnum;
+        }
+    }
     public class VesselFinder
     {
         // Loading all vessels that have WirelessSource module, and adding them to a list to use later
@@ -149,7 +228,15 @@ namespace BeamedPowerStandalone
                     transform2 = FlightGlobals.Bodies[x].transform;
                     radius2 = FlightGlobals.Bodies[x].Radius;
                     celestialBody = FlightGlobals.Bodies[x];
-                    radius2 *= (wavelength == "Long") ? 0.7 : 0.95;
+                    float occlusionMult;
+                    if (wavelength == "Radiowaves") { occlusionMult = 0.3f; }
+                    else if (wavelength == "Microwaves") { occlusionMult = 0.6f; }
+                    else if (wavelength == "Infrared") { occlusionMult = 0.7f; }
+                    else if (wavelength == "Ultraviolet") { occlusionMult = 0.9f; }
+                    else if (wavelength == "XRays") { occlusionMult = 0.95f; }
+                    else if (wavelength == "GammaRays") { occlusionMult = 1f; }
+                    else { occlusionMult = 0.9f; }
+                    radius2 *= occlusionMult;
 
                     OccluderHorizonCulling occlusion = new OccluderHorizonCulling(transform2, radius2, radius2, radius2);
                     occlusion.Update();
