@@ -65,7 +65,7 @@ namespace BeamedPowerStandalone
             {
                 requestAmount = LoadVesselPowerData();
             }
-            if (HighLogic.CurrentGame.Parameters.CustomParams<BPSettings>().BackgroundProcessing == true)
+            if (HighLogic.CurrentGame.Parameters.CustomParams<BPSettings>().BackgroundProcessing == true && this.vessel?.Parts?.Count > 0)
             {
                 this.vessel.RequestResource(this.vessel.Parts[0], EChash, requestAmount, false);
             }
